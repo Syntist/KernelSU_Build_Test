@@ -45,12 +45,12 @@ jobs:
 
         git clone https://gitlab.com/simonpunk/susfs4ksu.git -b kernel-4.19
         cp ./susfs4ksu/kernel_patches/include/linux/susfs.h $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/
+        cp ./susfs4ksu/kernel_patches/include/linux/susfs_def.h $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/
         cp ./susfs4ksu/kernel_patches/fs/susfs.c $GITHUB_WORKSPACE/kernel_workspace/android-kernel/fs/
         cp ./susfs4ksu/kernel_patches/50_add_susfs_in_kernel-4.19.patch $GITHUB_WORKSPACE/kernel_workspace/android-kernel
         patch -p1 < 50_add_susfs_in_kernel-4.19.patch || echo "Patch failed, skipping."
 
-        # Not needed anymore
-        # sed -i '/struct ratelimit_state ratelimit;/a\#if defined(CONFIG_KSU_SUSFS) && !defined(ANDROID_KABI_RESERVE)\nu64 android_kabi_reserved2;\n#endif\nANDROID_KABI_RESERVE(1);\nANDROID_KABI_RESERVE(2);' $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/sched/user.h
+        sed -i '/struct ratelimit_state ratelimit;/a\#if defined(CONFIG_KSU_SUSFS) && !defined(ANDROID_KABI_RESERVE)\nu64 android_kabi_reserved2;\n#endif\nANDROID_KABI_RESERVE(1);\nANDROID_KABI_RESERVE(2);' $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/sched/user.h
 
         ls $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/susfs.h
         ls $GITHUB_WORKSPACE/kernel_workspace/android-kernel/fs/susfs.c
