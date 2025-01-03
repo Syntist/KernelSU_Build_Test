@@ -45,7 +45,7 @@ jobs:
 
         git clone https://gitlab.com/simonpunk/susfs4ksu.git -b kernel-4.19
         cd susfs4ksu
-        git switch 701c65b2
+        git switch 701c65b2 --detach
         cd ..
         cp ./susfs4ksu/kernel_patches/include/linux/susfs.h $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/
         cp ./susfs4ksu/kernel_patches/include/linux/susfs_def.h $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/
