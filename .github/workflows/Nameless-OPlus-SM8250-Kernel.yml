@@ -30,7 +30,7 @@ jobs:
     - name: Download kernel source
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
-        git clone --recursive https://github.com/Nameless-AOSP-OSS/kernel_oneplus_sm8250 -b fifteen android-kernel --depth=1
+        git clone --recursive https://github.com/OnePlusOSS/android_kernel_oneplus_sm8650 -b oneplus/sm8650_v_15.0.0_oneplus12 android-kernel --depth=1
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel/scripts
         sed -i 's/ -dirty//g' setlocalversion
 
@@ -38,46 +38,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
 
-        patch -p1 < $GITHUB_WORKSPACE/patches/non-gki-su.diff || echo "Non-GKI patch failed, skipping."
-
-        git clone https://gitlab.com/simonpunk/susfs4ksu.git -b kernel-4.19
-        cp ./susfs4ksu/kernel_patches/include/linux/susfs.h $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/
-        cp ./susfs4ksu/kernel_patches/fs/susfs.c $GITHUB_WORKSPACE/kernel_workspace/android-kernel/fs/
-        cp ./susfs4ksu/kernel_patches/include/linux/susfs_def.h ./include/linux/
-        cp ./susfs4ksu/kernel_patches/50_add_susfs_in_kernel-4.19.patch $GITHUB_WORKSPACE/kernel_workspace/android-kernel
-
-
-        git clone https://github.com/rifsxd/KernelSU-Next.git -b next
-        cp ./susfs4ksu/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch $GITHUB_WORKSPACE/kernel_workspace/android-kernel/KernelSU-Next
-
-        git config --global user.email "test"
-        git config --global user.name "test"
-        
-        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel/KernelSU-Next
-        patch -p1 < 10_enable_susfs_for_ksu.patch || echo "Patch failed, skipping."
-        git restore kernel/core_hook.c
-
-        patch -p1 < $GITHUB_WORKSPACE/patches/ksu-susfs.patch || echo "Non-GKI patch failed, skipping."     
-
-        git add .
-        git checkout -b 'test'
-        git commit -m 'test'
-
-        cd ..
-
-        bash KernelSU-Next/kernel/setup.sh test
-
-
-        patch -p1 < 50_add_susfs_in_kernel-4.19.patch || echo "Patch failed, skipping."
-
-        sed -i '/struct ratelimit_state ratelimit;/a\#if defined(CONFIG_KSU_SUSFS) && !defined(ANDROID_KABI_RESERVE)\nu64 android_kabi_reserved2;\n#endif\nANDROID_KABI_RESERVE(1);\nANDROID_KABI_RESERVE(2);' $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/sched/user.h
-
-        ls $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/susfs.h
-        ls $GITHUB_WORKSPACE/kernel_workspace/android-kernel/fs/susfs.c
-
-
-        grep -r "susfs_is_sus_su_hooks_enabled" .
-
+        curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next
         echo "KSUVER=$KSU_VERSION" >> $GITHUB_ENV
     
     - name: Download Clang-aosp
